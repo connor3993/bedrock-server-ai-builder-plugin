@@ -1,0 +1,297 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 886" width="1280" height="886" role="img" aria-labelledby="title desc">
+  <title id="title">AI Build 系统架构图</title>
+  <desc id="desc">Minecraft Bedrock AI 建造插件四层架构：客户端、LeviLamina/LSE 游戏服务端、FastAPI 后端服务、PiAgent 与 schematic-architect MCP 生成层</desc>
+
+  <defs>
+    <style>
+      .font { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+      .title { font-size: 22px; font-weight: 700; fill: #0F172A; }
+      .subtitle { font-size: 12.5px; font-weight: 400; fill: #64748B; }
+      .layer-badge { font-size: 11.5px; font-weight: 600; }
+      .layer-meta { font-size: 11.5px; font-weight: 500; fill: #64748B; }
+      .card-title { font-size: 13.5px; font-weight: 600; fill: #0F172A; }
+      .card-sub { font-size: 11.5px; font-weight: 400; fill: #475569; }
+      .card-muted { font-size: 11px; font-weight: 400; fill: #64748B; }
+      .edge-label { font-size: 11px; font-weight: 500; fill: #334155; }
+      .edge-label-blue { font-size: 11px; font-weight: 500; fill: #0369A1; }
+      .legend-text { font-size: 11.5px; font-weight: 500; fill: #475569; }
+    </style>
+
+    <filter id="card-shadow" x="-6%" y="-10%" width="112%" height="126%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.05" />
+    </filter>
+
+    <marker id="arrow-slate" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M 1 1.5 L 9 5 L 1 8.5 z" fill="#475569" />
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M 1 1.5 L 9 5 L 1 8.5 z" fill="#0284C7" />
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M 1 1.5 L 9 5 L 1 8.5 z" fill="#16A34A" />
+    </marker>
+    <marker id="arrow-amber" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M 1 1.5 L 9 5 L 1 8.5 z" fill="#D97706" />
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M 1 1.5 L 9 5 L 1 8.5 z" fill="#7C3AED" />
+    </marker>
+  </defs>
+
+  <!-- Outer Card Background (high contrast on both GitHub Light & Dark themes) -->
+  <rect x="0.5" y="0.5" width="1279" height="885" rx="16" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" />
+
+  <!-- Header -->
+  <text x="36" y="42" class="font title">bedrock-server-ai-builder-plugin · 系统架构</text>
+  <text x="36" y="64" class="font subtitle">Minecraft Bedrock · LeviLamina + LSE (QuickJS) · Python FastAPI · PiAgent + MCP</text>
+
+  <!-- Legend -->
+  <g transform="translate(946, 28)">
+    <rect x="0" y="0" width="298" height="36" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1" />
+    <line x1="16" y1="18" x2="48" y2="18" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow-slate)" />
+    <text x="58" y="22" class="font legend-text">调用 / 数据流</text>
+    <line x1="158" y1="18" x2="190" y2="18" stroke="#0284C7" stroke-width="1.8" stroke-dasharray="5 3.5" marker-end="url(#arrow-blue)" />
+    <text x="200" y="22" class="font legend-text">轮询 / 回调</text>
+  </g>
+
+  <!-- ==================== L1 · 客户端 ==================== -->
+  <g id="layer-1">
+    <rect x="36" y="92" width="1208" height="104" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1" />
+    <rect x="52" y="102" width="90" height="22" rx="6" fill="#DBEAFE" />
+    <text x="97" y="117" text-anchor="middle" class="font layer-badge" fill="#1D4ED8">L1 · 客户端</text>
+    <text x="1224" y="117" text-anchor="end" class="font layer-meta">Minecraft Bedrock 1.26.x</text>
+
+    <!-- 玩家客户端 (x=80..300, center=190) -->
+    <g filter="url(#card-shadow)">
+      <rect x="80" y="134" width="220" height="50" rx="8" fill="#FFFFFF" stroke="#3B82F6" stroke-width="1.5" />
+      <rect x="80" y="134" width="4" height="50" rx="2" fill="#3B82F6" />
+    </g>
+    <text x="192" y="155" text-anchor="middle" class="font card-title">玩家客户端</text>
+    <text x="192" y="173" text-anchor="middle" class="mono card-sub">Bedrock 1.26.x</text>
+
+    <!-- Connector player -> entry -->
+    <line x1="300" y1="159" x2="344" y2="159" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="4 3" />
+
+    <!-- 操作入口 -->
+    <rect x="344" y="134" width="364" height="50" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="5 3" />
+    <text x="526" y="155" text-anchor="middle" class="font card-title" style="font-size:12.5px; fill:#334155;">操作入口</text>
+    <text x="526" y="173" text-anchor="middle" class="font card-muted">/build 选点 · 木棍右键两点 · CustomForm 提示词表单</text>
+
+    <!-- Pure server-side note -->
+    <rect x="936" y="140" width="288" height="38" rx="8" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="1" />
+    <text x="1080" y="163" text-anchor="middle" class="font" style="font-size:12px; font-weight:500; fill:#1E40AF;">纯服务端驱动 · 玩家无需安装客户端 Mod</text>
+  </g>
+
+  <!-- ==================== L2 · 游戏服务端 ==================== -->
+  <g id="layer-2">
+    <rect x="36" y="222" width="1208" height="196" rx="12" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1" />
+    <rect x="52" y="232" width="112" height="22" rx="6" fill="#DCFCE7" />
+    <text x="108" y="247" text-anchor="middle" class="font layer-badge" fill="#15803D">L2 · 游戏服务端</text>
+    <text x="1224" y="247" text-anchor="end" class="font layer-meta">BDS 1.26.51 · LeviLamina · LSE (QuickJS)</text>
+
+    <!-- ai-build 插件外框 (x=64..892, center=478) -->
+    <rect x="64" y="268" width="828" height="134" rx="10" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.5" />
+    <!-- Top centered header pill (zero overlap with vertical spine x=190) -->
+    <rect x="348" y="256" width="260" height="24" rx="12" fill="#DCFCE7" stroke="#16A34A" stroke-width="1.2" />
+    <text x="478" y="272" text-anchor="middle" class="font" style="font-size:12px; font-weight:700; fill:#166534;">ai-build 插件 · LSE (QuickJS)</text>
+
+    <!-- UI 表单 (x=80..300, center=190) -->
+    <g filter="url(#card-shadow)">
+      <rect x="80" y="298" width="220" height="82" rx="8" fill="#FFFFFF" stroke="#22C55E" stroke-width="1.5" />
+    </g>
+    <text x="190" y="324" text-anchor="middle" class="font card-title">UI 表单</text>
+    <text x="190" y="344" text-anchor="middle" class="mono card-sub">CustomForm</text>
+    <text x="190" y="363" text-anchor="middle" class="font card-muted">提示词 / 风格参数</text>
+
+    <!-- 选区工具 (x=352..572, center=462) -->
+    <g filter="url(#card-shadow)">
+      <rect x="352" y="298" width="220" height="82" rx="8" fill="#FFFFFF" stroke="#22C55E" stroke-width="1.5" />
+    </g>
+    <text x="462" y="322" text-anchor="middle" class="font card-title">选区工具</text>
+    <text x="462" y="342" text-anchor="middle" class="font card-sub">两点选区 · 32³ 上限</text>
+    <text x="462" y="362" text-anchor="middle" class="font card-muted">遍历选区 → 体素快照</text>
+
+    <!-- 执行器 (x=626..874, center=750) -->
+    <g filter="url(#card-shadow)">
+      <rect x="626" y="298" width="248" height="82" rx="8" fill="#F0FDF4" stroke="#16A34A" stroke-width="1.5" />
+    </g>
+    <text x="750" y="322" text-anchor="middle" class="font card-title">执行器</text>
+    <text x="750" y="342" text-anchor="middle" class="font card-sub">增量优先 · 按 AI 工具批次落块</text>
+    <text x="750" y="362" text-anchor="middle" class="font card-muted">完成后仅补齐遗漏差异</text>
+
+    <!-- 插件内部连线: UI <-> 选区 -->
+    <line x1="303" y1="339" x2="349" y2="339" stroke="#16A34A" stroke-width="1.5" marker-start="url(#arrow-green)" marker-end="url(#arrow-green)" />
+
+    <!-- 游戏世界 -->
+    <g filter="url(#card-shadow)">
+      <rect x="988" y="292" width="236" height="72" rx="8" fill="#FFFFFF" stroke="#16A34A" stroke-width="1.5" />
+      <rect x="988" y="292" width="4" height="72" rx="2" fill="#16A34A" />
+    </g>
+    <text x="1108" y="322" text-anchor="middle" class="font card-title">游戏世界</text>
+    <text x="1108" y="343" text-anchor="middle" class="font card-sub">BDS 存档 · 实时方块写入</text>
+
+    <!-- 不写结构文件说明 -->
+    <rect x="988" y="374" width="236" height="28" rx="6" fill="#FFFFFF" stroke="#86EFAC" stroke-width="1.1" stroke-dasharray="4 3" />
+    <text x="1106" y="392" text-anchor="middle" class="font card-muted">不写结构文件 · 直接逐批放置</text>
+
+    <!-- 执行器 -> 游戏世界 -->
+    <line x1="874" y1="328" x2="985" y2="328" stroke="#16A34A" stroke-width="1.8" marker-end="url(#arrow-green)" />
+    <rect x="883" y="305" width="96" height="20" rx="10" fill="#FFFFFF" stroke="#BBF7D0" stroke-width="1" />
+    <text x="931" y="319" text-anchor="middle" class="mono" style="font-size:10px; font-weight:600; fill:#15803D;">mc.setBlock</text>
+  </g>
+
+  <!-- ==================== L3 · 后端服务 ==================== -->
+  <g id="layer-3">
+    <rect x="36" y="472" width="1208" height="224" rx="12" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1" />
+    <rect x="52" y="482" width="106" height="22" rx="6" fill="#FEF3C7" />
+    <text x="105" y="497" text-anchor="middle" class="font layer-badge" fill="#B45309">L3 · 后端服务</text>
+    <text x="1224" y="497" text-anchor="end" class="font layer-meta">Python FastAPI · 腾讯云 / 本地部署</text>
+
+    <!-- API 网关 (x=80..300, center=190) -->
+    <g filter="url(#card-shadow)">
+      <rect x="80" y="514" width="220" height="66" rx="8" fill="#FFFFFF" stroke="#D97706" stroke-width="1.5" />
+    </g>
+    <text x="190" y="541" text-anchor="middle" class="font card-title">API 网关</text>
+    <text x="190" y="561" text-anchor="middle" class="mono card-sub">POST /v1/build · GET /{id}</text>
+
+    <!-- 选区体素 (x=80..300, center=190) -->
+    <rect x="80" y="608" width="220" height="58" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="5 3" />
+    <text x="190" y="632" text-anchor="middle" class="font card-title" style="font-size:12.5px; fill:#334155;">选区体素</text>
+    <text x="190" y="652" text-anchor="middle" class="mono card-muted">HTTP context 字段</text>
+
+    <!-- 任务 Worker (x=374..604, center=489) -->
+    <g filter="url(#card-shadow)">
+      <rect x="374" y="514" width="230" height="66" rx="8" fill="#FFFFFF" stroke="#D97706" stroke-width="1.5" />
+    </g>
+    <text x="489" y="541" text-anchor="middle" class="font card-title">任务 Worker</text>
+    <text x="489" y="561" text-anchor="middle" class="mono card-sub">asyncio.create_task</text>
+
+    <!-- 格式转换 (x=374..604, center=489) -->
+    <g filter="url(#card-shadow)">
+      <rect x="374" y="608" width="230" height="60" rx="8" fill="#FFFFFF" stroke="#D97706" stroke-width="1.5" />
+    </g>
+    <text x="489" y="631" text-anchor="middle" class="font card-title" style="font-size:13px;">格式转换</text>
+    <text x="489" y="648" text-anchor="middle" class="mono card-muted">backend/app/voxel.py</text>
+    <text x="489" y="662" text-anchor="middle" class="font card-sub" style="font-size:11px;">体素 JSON ⇄ .litematic</text>
+
+    <!-- SQLite (x=680..866, center=773) -->
+    <g filter="url(#card-shadow)">
+      <rect x="680" y="514" width="186" height="66" rx="8" fill="#FFFFFF" stroke="#D97706" stroke-width="1.5" />
+    </g>
+    <text x="773" y="541" text-anchor="middle" class="font card-title">SQLite</text>
+    <text x="773" y="561" text-anchor="middle" class="font card-sub">任务表 / 状态流转</text>
+
+    <!-- 审计归档 (x=948..1224) -->
+    <rect x="948" y="514" width="276" height="76" rx="8" fill="#FEF9C3" stroke="#EAB308" stroke-width="1.2" stroke-dasharray="5 3" />
+    <text x="964" y="536" class="font card-title" style="font-size:12.5px; fill:#854D0E;">审计归档（每次任务）</text>
+    <text x="964" y="555" class="mono" style="font-size:11px; fill:#A16207;">input.litematic · output.litematic</text>
+    <text x="964" y="574" class="font" style="font-size:11px; fill:#A16207;">只存结构文件，不存体素 JSON</text>
+
+    <!-- 产物缓存 (x=948..1224) -->
+    <rect x="948" y="608" width="276" height="58" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2" stroke-dasharray="5 3" />
+    <text x="1086" y="632" text-anchor="middle" class="font card-title" style="font-size:12.5px; fill:#334155;">产物缓存</text>
+    <text x="1086" y="652" text-anchor="middle" class="mono card-muted">builds/&lt;task_id&gt;.json</text>
+
+    <!-- L3 Footer Note -->
+    <text x="80" y="685" class="font card-muted">单进程异步队列 · 任务持久化落库 · 失败可重试</text>
+
+    <!-- L3 Internal Edges -->
+    <!-- API <-> 选区体素 -->
+    <line x1="190" y1="582" x2="190" y2="605" stroke="#475569" stroke-width="1.5" marker-start="url(#arrow-slate)" marker-end="url(#arrow-slate)" />
+    <text x="200" y="597" class="font card-muted">context 快照</text>
+
+    <!-- API -> Worker -->
+    <line x1="300" y1="547" x2="371" y2="547" stroke="#D97706" stroke-width="1.6" marker-end="url(#arrow-amber)" />
+    <text x="336" y="538" text-anchor="middle" class="font edge-label">入队</text>
+
+    <!-- Worker -> DB -->
+    <line x1="604" y1="547" x2="677" y2="547" stroke="#D97706" stroke-width="1.6" marker-end="url(#arrow-amber)" />
+    <text x="641" y="538" text-anchor="middle" class="font edge-label">状态</text>
+
+    <!-- Worker -> 格式转换 -->
+    <line x1="446" y1="580" x2="446" y2="605" stroke="#D97706" stroke-width="1.6" marker-end="url(#arrow-amber)" />
+    <text x="438" y="597" text-anchor="end" class="font card-muted">context JSON</text>
+
+    <!-- 格式转换 -> Worker -->
+    <line x1="534" y1="608" x2="534" y2="583" stroke="#D97706" stroke-width="1.6" marker-end="url(#arrow-amber)" />
+    <text x="542" y="597" text-anchor="start" class="font card-muted">result JSON</text>
+
+    <!-- 格式转换 -> 产物缓存 -->
+    <line x1="604" y1="644" x2="945" y2="644" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow-slate)" />
+    <rect x="726" y="634" width="96" height="19" rx="9" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1" />
+    <text x="774" y="647" text-anchor="middle" class="font card-muted">写入体素缓存</text>
+
+    <!-- 格式转换 -> 审计归档 (routed through clean corridor x=908 between DB 866 and Audit 948) -->
+    <path d="M 604 624 L 902 624 Q 908 624 908 618 L 908 558 Q 908 552 914 552 L 945 552" fill="none" stroke="#CA8A04" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-amber)" />
+    <rect x="726" y="603" width="96" height="19" rx="9" fill="#FEFCE8" stroke="#FDE047" stroke-width="1" />
+    <text x="774" y="616" text-anchor="middle" class="font" style="font-size:10.5px; fill:#854D0E;">归档 .litematic</text>
+  </g>
+
+  <!-- ==================== L4 · AI 生成 ==================== -->
+  <g id="layer-4">
+    <rect x="36" y="726" width="1208" height="136" rx="12" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.2" />
+    <rect x="52" y="736" width="98" height="22" rx="6" fill="#EDE9FE" />
+    <text x="101" y="751" text-anchor="middle" class="font layer-badge" fill="#6D28D9">L4 · AI 生成</text>
+    <text x="1224" y="751" text-anchor="end" class="font layer-meta">Worker 内嵌子进程 · PiAgent + MCP 工具链</text>
+
+    <!-- PiAgent (x=80..300, center=190) -->
+    <g filter="url(#card-shadow)">
+      <rect x="80" y="772" width="220" height="72" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5" />
+    </g>
+    <text x="190" y="802" text-anchor="middle" class="font card-title">PiAgent</text>
+    <text x="190" y="823" text-anchor="middle" class="mono card-sub">pi --mode rpc</text>
+
+    <!-- MCP 工具 (x=366..576, center=471) -->
+    <g filter="url(#card-shadow)">
+      <rect x="366" y="772" width="210" height="72" rx="8" fill="#FFFFFF" stroke="#7C3AED" stroke-width="1.5" />
+    </g>
+    <text x="471" y="801" text-anchor="middle" class="font card-title">MCP 工具调用</text>
+    <text x="471" y="822" text-anchor="middle" class="mono card-sub">open_schematic · export</text>
+
+    <!-- schematic-architect (x=646..896, center=771) -->
+    <g filter="url(#card-shadow)">
+      <rect x="646" y="772" width="250" height="72" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5" />
+    </g>
+    <text x="771" y="799" text-anchor="middle" class="font card-title">schematic-architect</text>
+    <text x="771" y="819" text-anchor="middle" class="mono card-sub">MCP Server · Python</text>
+    <text x="771" y="835" text-anchor="middle" class="font card-muted" style="font-size:10px;">编辑操作实时增量推送至后端</text>
+
+    <!-- 职责边界说明 (x=948..1224) -->
+    <rect x="948" y="772" width="276" height="72" rx="8" fill="#FFFFFF" stroke="#C4B5FD" stroke-width="1.2" stroke-dasharray="5 3" />
+    <text x="1086" y="800" text-anchor="middle" class="font card-title" style="font-size:12.5px; fill:#5B21B6;">职责边界</text>
+    <text x="1086" y="822" text-anchor="middle" class="font card-muted">只产出 .litematic · 不做体素 JSON 转换</text>
+
+    <!-- L4 Internal Edges -->
+    <line x1="300" y1="808" x2="363" y2="808" stroke="#7C3AED" stroke-width="1.8" marker-end="url(#arrow-purple)" />
+    <line x1="576" y1="808" x2="643" y2="808" stroke="#7C3AED" stroke-width="1.8" marker-end="url(#arrow-purple)" />
+  </g>
+
+  <!-- ==================== Cross-Layer Arrows ==================== -->
+  <g id="cross-layer-edges">
+    <!-- L1 player -> L2 UI 表单 (x=190 unobstructed!) -->
+    <line x1="190" y1="184" x2="190" y2="295" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow-slate)" />
+    <rect x="160" y="199" width="60" height="20" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1" />
+    <text x="190" y="213" text-anchor="middle" class="mono edge-label">/build</text>
+
+    <!-- L2 UI 表单 -> L3 API 网关 (x=190 unobstructed!) -->
+    <line x1="190" y1="380" x2="190" y2="511" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow-slate)" />
+    <rect x="68" y="431" width="244" height="26" rx="13" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1" />
+    <text x="190" y="448" text-anchor="middle" class="mono edge-label">POST /v1/build {prompt, context}</text>
+
+    <!-- L3 任务 Worker -> L2 执行器 (轮询 / 回调) -->
+    <path d="M 536 514 L 536 450 Q 536 444 542 444 L 744 444 Q 750 444 750 438 L 750 383" fill="none" stroke="#0284C7" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#arrow-blue)" />
+    <rect x="505" y="431" width="276" height="26" rx="13" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1" />
+    <text x="643" y="448" text-anchor="middle" class="font edge-label-blue">GET /v1/build/{id} 轮询 · 增量 / 体素 JSON</text>
+
+    <!-- L3 格式转换 -> L4 PiAgent (input.litematic, drops at x=190 unobstructed!) -->
+    <path d="M 446 668 L 446 705 Q 446 711 440 711 L 196 711 Q 190 711 190 717 L 190 769" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow-slate)" />
+    <rect x="260" y="700" width="118" height="22" rx="11" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1" />
+    <text x="319" y="715" text-anchor="middle" class="mono edge-label">input.litematic</text>
+
+    <!-- L4 schematic-architect -> L3 格式转换 (output.litematic) -->
+    <path d="M 738 772 L 738 717 Q 738 711 732 711 L 540 711 Q 534 711 534 705 L 534 671" fill="none" stroke="#475569" stroke-width="1.8" marker-end="url(#arrow-slate)" />
+    <rect x="572" y="700" width="128" height="22" rx="11" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1" />
+    <text x="636" y="715" text-anchor="middle" class="mono edge-label">output.litematic</text>
+  </g>
+</svg>

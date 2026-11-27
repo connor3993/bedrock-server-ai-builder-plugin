@@ -1,0 +1,7 @@
+{
+    "backend": "http://127.0.0.1:8000",
+    "pollMs": 1000,
+    "batchSize": 800,
+    "maxSize": 32,
+    "palette": "oak"
+}

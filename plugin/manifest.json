@@ -1,0 +1,12 @@
+{
+    "entry": "index.js",
+    "name": "ai_build",
+    "type": "lse-quickjs",
+    "version": "0.1.0",
+    "description": "AI build: selection + prompt -> generated structure placed block by block",
+    "dependencies": [
+        {
+            "name": "legacy-script-engine-quickjs"
+        }
+    ]
+}

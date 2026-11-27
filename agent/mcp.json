@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "schematic-architect": {
+      "command": "../backend/.venv/Scripts/python.exe",
+      "args": ["-m", "schematic_architect.server"],
+      "env": {
+        "PYTHONPATH": "../mcp/schematic-architect/src",
+        "AI_BUILD_PUSH_BASE": "http://127.0.0.1:8000"
+      }
+    }
+  }
+}
